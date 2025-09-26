@@ -11,10 +11,7 @@ export const transport = nodemailer.createTransport({
   auth: {
     user: config.SMTP_USERNAME,
     pass: config.SMTP_PASSWORD,
-  },
-  tls: {
-    rejectUnauthorized: false, // optional but often fixes handshake in Render
-  },
+  }
 });
 
 if (config.NODE_ENV !== 'test') {

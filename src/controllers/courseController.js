@@ -6,7 +6,8 @@ import Lesson from '~/models/lessonModel';
 import Enrollment from '~/models/enrollmentModel';
 import Wishlist from '~/models/wishlistModel';
 import Review from '~/models/reviewModel';
-import User from '~/models/userModel';
+import User from '~/models/userModel'; 
+import Quiz from '~/models/quizModel';
 
 // ─── COURSE CRUD ───────────────────────────────────────────────
 
@@ -34,11 +35,15 @@ export const getCourseById = catchAsync(async (req, res) => {
   // Get reviews
   const reviews = await Review.find({ courseId: course._id })
     .populate('userId', 'fullName')
-    .lean();
+    .lean(); 
+
+  const quizzes = await Quiz.find({ courseId: course._id })
+  .sort({ createdAt: 1 }) // optional: sort by created date
+  .lean();
 
   res.json({
     success: true,
-    data: { ...course, lessons, reviews },
+    data: { ...course, lessons, reviews, quizzes },
     message: 'Course retrieved successfully'
   });
 });

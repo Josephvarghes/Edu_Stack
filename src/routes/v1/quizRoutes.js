@@ -29,6 +29,18 @@ const router = express.Router();
 router.get('/', quizController.listQuizzes);
 router.get('/:quizId', quizController.getQuizById); 
 
+// Quiz taking flow (requires auth)
+router.use(authenticate()); // all below require login
+
+router.post('/:quizId/start', quizController.startQuiz);
+router.get('/:quizId/question/:questionIndex', quizController.getQuestionByIndex);
+router.post('/:quizId/answer', quizController.submitAnswer);
+router.post('/:quizId/preview-submit', quizController.previewSubmit);
+router.post('/:quizId/submit', quizController.submitQuiz);
+router.get('/:quizId/summary', quizController.getQuizSummary);
+router.get('/:quizId/review-answers', quizController.getReviewAnswers);
+
+
 // Protected routes (tutor/admin)
 router.use(authenticate('quiz:create')); // or check ownership in controller
 

@@ -1,31 +1,5 @@
+// src/models/QuizAttempt.js
 import mongoose from 'mongoose';
-
-const answerSchema = new mongoose.Schema({
-  questionId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Question',
-    required: true
-  },
-  // For multiple choice: index of selected option (0, 1, 2, 3)
-  selectedOptionIndex: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  // For fill-in-blank: text answer
-  textAnswer: {
-    type: String,
-    trim: true
-  },
-  isCorrect: {
-    type: Boolean,
-    required: true
-  },
-  timeSpent: {
-    type: Number, // in seconds
-    default: 0
-  }
-}, { _id: false }); // Embed without ObjectId
 
 const quizAttemptSchema = new mongoose.Schema({
   userId: {
@@ -40,17 +14,18 @@ const quizAttemptSchema = new mongoose.Schema({
   },
   startedAt: {
     type: Date,
-    required: true
+    default: Date.now
   },
   completedAt: {
-    type: Date,
-    default: null
+    type: Date
+  },
+  isCompleted: {
+    type: Boolean,
+    default: false
   },
   score: {
-    type: Number, // 0-100 percentage
-    default: 0,
-    min: 0,
-    max: 100
+    type: Number, // percentage (0-100)
+    default: 0
   },
   totalPoints: {
     type: Number,
@@ -68,20 +43,40 @@ const quizAttemptSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  isCompleted: {
-    type: Boolean,
-    default: false
-  },
-  // Store answers in order
-  answers: [answerSchema]
+  answers: [
+    {
+      questionIndex: { 
+        type: Number, 
+        required: true 
+      },
+      selectedOptionIndex: { 
+        type: Number 
+      },
+      isCorrect: { 
+        type: Boolean 
+      },
+      timeSpent: { 
+        type: Number, // seconds
+        default: 0
+      },
+      isSavedForReview: { 
+        type: Boolean, 
+        default: false 
+      },
+      isDraft: {
+        type: Boolean,
+        default: false
+      }
+    }
+  ]
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// Index for fast lookup
+// Index for performance
 quizAttemptSchema.index({ userId: 1, quizId: 1 });
-quizAttemptSchema.index({ quizId: 1, completedAt: -1 });
+quizAttemptSchema.index({ quizId: 1, isCompleted: 1 });
 
 export default mongoose.model('QuizAttempt', quizAttemptSchema);

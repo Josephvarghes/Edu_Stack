@@ -21,7 +21,7 @@ router.get('/:courseId/related', courseController.getRelatedCourses);
 // 🔒 PROTECTED ROUTES (REQUIRE AUTH)
 // ──────────────────────────────────────
 
-// Apply auth middleware to all routes below
+
 router.use(authenticate());
 
 // Student actions

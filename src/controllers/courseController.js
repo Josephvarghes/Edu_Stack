@@ -202,10 +202,32 @@ export const markLessonComplete = catchAsync(async (req, res) => {
 
 // ─── WISHLIST ──────────────────────────────────────────────────
 
+// export const addToWishlist = catchAsync(async (req, res) => {
+//   const { courseId } = req.body;
+//   const userId = req.user.id;
+
+//   const course = await Course.findById(courseId);
+//   if (!course) {
+//     return res.status(httpStatus.NOT_FOUND).json({
+//       success: false,
+//       data: {},
+//       message: 'Course not found'
+//     });
+//   }
+
+//   const wishlistItem = await Wishlist.create({ userId, courseId });
+//   res.status(httpStatus.CREATED).json({
+//     success: true,
+//     data: wishlistItem,
+//     message: 'Added to wishlist'
+//   });
+// });
+
 export const addToWishlist = catchAsync(async (req, res) => {
   const { courseId } = req.body;
   const userId = req.user.id;
 
+  // Check if course exists
   const course = await Course.findById(courseId);
   if (!course) {
     return res.status(httpStatus.NOT_FOUND).json({
@@ -215,7 +237,19 @@ export const addToWishlist = catchAsync(async (req, res) => {
     });
   }
 
+  // Check if already in wishlist
+  const existingItem = await Wishlist.findOne({ userId, courseId });
+  if (existingItem) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      data: {},
+      message: 'Course already in wishlist'
+    });
+  }
+
+  // Add to wishlist
   const wishlistItem = await Wishlist.create({ userId, courseId });
+
   res.status(httpStatus.CREATED).json({
     success: true,
     data: wishlistItem,

@@ -4,6 +4,7 @@ import catchAsync from '~/utils/catchAsync.js';
 import Quiz from '~/models/quizModel';
 import QuizAttempt from '~/models/quizAttemptModel'; 
 import Course from '~/models/courseModel'; 
+import Certificate from '~/models/certificateModel';
 
 
 export const createQuiz = catchAsync(async (req, res) => {
@@ -507,6 +508,29 @@ export const submitQuiz = catchAsync(async (req, res) => {
   attempt.completedAt = new Date();
 
   await attempt.save();
+  
+  let certificate = null; 
+  if (attempt.score >= quiz.passingScore) {
+  // Generate certificate
+    certificate = await Certificate.create({
+    userId: req.user.id,
+    quizId: quiz._id,
+    courseId: quiz.courseId,
+    subject: quiz.subject,
+    title: quiz.title,
+    description: quiz.description,
+    score: attempt.score,
+    completionDate: new Date(),
+    verificationCode: `VF-${new Date().getFullYear()}-${quiz.subject.substring(0, 3).toUpperCase()}-${req.user.id.toString().substring(0, 2).toUpperCase()}-${attempt._id.toString().substring(0, 3).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+    skillsEarned: quiz.topics?.map(t => t.name) || [],
+    studyTimeHours: 0, // You can calculate this from Enrollment
+    chaptersCompleted: 0, // You can calculate this from Enrollment
+    quizzesPassed: 1 // Increment based on passed quizzes
+  });
+
+  
+  
+}
 
   res.json({
     success: true,
@@ -516,7 +540,8 @@ export const submitQuiz = catchAsync(async (req, res) => {
       earnedPoints: attempt.earnedPoints,
       totalPoints: totalQuestions,
       isPassed: attempt.score >= quiz.passingScore,
-      passingScore: quiz.passingScore
+      passingScore: quiz.passingScore, 
+      certificateId: certificate._id
     },
     message: 'Quiz submitted successfully'
   });

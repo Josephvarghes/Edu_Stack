@@ -1,36 +1,18 @@
-import { Router } from 'express';
-import catchAsync from '~/utils/catchAsync';
-import authenticate from '~/middlewares/authenticate';
-import certificateController from '~/controllers/certificateController.js';
+import express from 'express';
+import authenticate from '~/middlewares/authenticate.js';
+import * as certificateController from '~/controllers/certificateController.js';
 
-const router = Router();
+const router = express.Router();
 
-// Create certificate (restricted – maybe admin/instructor)
-router.post(
-  '/',
-  authenticate('certificate:create'),
-  catchAsync(certificateController.createCertificate)
-);
+// Public routes (certificates can be viewed by anyone with ID)
+router.get('/:certificateId', certificateController.getCertificateById);
+// router.get('/:certificateId/verify', certificateController.verifyCertificate);
+router.get('/:certificateId/download', certificateController.downloadCertificate);
 
-// Get certificates by userId (any authenticated user)
-router.get(
-  '/:userId',
-  authenticate(),
-  catchAsync(certificateController.getCertificatesByUser)
-);
+// // Protected routes (require auth)
+router.use(authenticate());
 
-// Update certificate
-router.put(
-  '/:id',
-  authenticate('certificate:update'),
-  catchAsync(certificateController.updateCertificate)
-);
-
-// Delete certificate
-router.delete(
-  '/:id',
-  authenticate('certificate:delete'),
-  catchAsync(certificateController.deleteCertificate)
-);
+// router.post('/:certificateId/share', certificateController.shareCertificate);
+router.get('/user/:userId', certificateController.getCertificatesByUser);
 
 export default router;

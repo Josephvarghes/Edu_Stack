@@ -1,36 +1,19 @@
-import { Router } from 'express';
-import catchAsync from '~/utils/catchAsync';
-import authenticate from '~/middlewares/authenticate';
-import paymentController from '~/controllers/paymentController.js';
+// src/routes/v1/paymentRoutes.js
+import express from 'express';
+import authenticate from '~/middlewares/authenticate.js';
+import * as paymentController from '~/controllers/paymentController.js';
 
-const router = Router();
+const router = express.Router();
 
-// Create payment (admin/instructor)
-router.post(
-  '/',
-  authenticate('payment:create'),
-  catchAsync(paymentController.createPayment)
-);
+// Public routes
+router.get('/plans', paymentController.getPlans);
 
-// Get all payments for a user (authenticated)
-router.get(
-  '/:userId',
-  authenticate(),
-  catchAsync(paymentController.getPaymentsByUser)
-);
+// Protected routes
+router.use(authenticate());
 
-// Update payment
-router.put(
-  '/:id',
-  authenticate('payment:update'),
-  catchAsync(paymentController.updatePayment)
-);
-
-// Delete payment
-router.delete(
-  '/:id',
-  authenticate('payment:delete'),
-  catchAsync(paymentController.deletePayment)
-);
+router.post('/promo-codes/apply', paymentController.applyPromoCode);
+router.post('/orders', paymentController.createOrder);
+router.post('/orders/:orderId/verify', paymentController.verifyPayment);
+router.get('/orders/:orderId', paymentController.getOrderById);
 
 export default router;

@@ -27,11 +27,12 @@ const router = express.Router();
 
 // Public route
 router.get('/', quizController.listQuizzes);
-router.get('/:quizId', quizController.getQuizById); 
+
 
 // Quiz taking flow (requires auth)
 router.use(authenticate()); // all below require login
 
+router.get('/:quizId', quizController.getQuizById); 
 router.post('/:quizId/start', quizController.startQuiz);
 router.get('/:quizId/question/:questionIndex', quizController.getQuestionByIndex);
 router.post('/:quizId/answer', quizController.submitAnswer);

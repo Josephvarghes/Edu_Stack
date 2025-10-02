@@ -39,6 +39,7 @@ export const createQuiz = catchAsync(async (req, res) => {
 
 export const getQuizById = catchAsync(async (req, res) => {
   const { quizId } = req.params;
+  const userId = req.user.id; // Optional: allow public access if needed
 
   // Fetch quiz
   const quiz = await Quiz.findById(quizId).lean();
@@ -48,25 +49,46 @@ export const getQuizById = catchAsync(async (req, res) => {
 
   // Fetch user's previous attempts (if logged in)
   let previousAttempts = [];
-  if (req.user) {
+  if (userId) {
     previousAttempts = await QuizAttempt.find({
-      userId: req.user.id,
-      quizId: quiz._id
+      userId,
+      quizId,
+      isCompleted: true
     })
     .sort({ completedAt: -1 })
     .limit(5)
     .lean();
   }
 
+  // Format quiz details
+  const quizDetail = {
+    number_of_que: quiz.questions.length,
+    time: quiz.timeLimit,
+    pass_score: quiz.passingScore,
+    attemp: quiz.attemptsAllowed,
+    // avatar: 'avatar.png' // or fetch from user/instructor
+  };
+
+  // Format progress (previous attempts)
+  const Progress = previousAttempts.map((attempt, index) => ({
+    date: attempt.completedAt.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    }),
+    Percentage: attempt.score,
+    Title: `attempt${index + 1}`
+  }));
+
   res.json({
     success: true,
     data: {
-      ...quiz,
-      previousAttempts
+      quiz_detail: quizDetail,
+      Progress
     },
-    message: 'Quiz details retrieved successfully'
+    message: 'successful'
   });
-}); 
+});
 
 /**
  * List quizzes with filters

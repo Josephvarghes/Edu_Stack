@@ -563,7 +563,7 @@ export const submitQuiz = catchAsync(async (req, res) => {
       totalPoints: totalQuestions,
       isPassed: attempt.score >= quiz.passingScore,
       passingScore: quiz.passingScore, 
-      certificateId: certificate._id
+      certificateId: certificate ? certificate._id : null
     },
     message: 'Quiz submitted successfully'
   });

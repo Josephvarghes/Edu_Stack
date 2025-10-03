@@ -13,6 +13,9 @@ import tutorRoutes from './tutorRoutes.js';
 import otpRoutes from './otpRoutes';
 import lessonRoutes from './lessonRoutes'; 
 import noteRoutes from './noteRoutes';
+import videoProgressRoutes from './videoProgressRoutes'; 
+import mediaRoutes from './mediaRoutes';
+
 
 const router = Router();
 
@@ -22,7 +25,7 @@ router.use('/roles', roleRoute);
 router.use('/images', imageRoute); 
 router.use('/quiz', quizRoute); 
 router.use('/course', courseRoute);  
-router.use('/progress', progressRoute); 
+router.use('/progresss', progressRoute); 
 router.use('/certificates', certificateRoutes);
 router.use('/payments', paymentRoutes); 
 router.use('/videos', videoRoutes);
@@ -30,6 +33,9 @@ router.use('/tutor', tutorRoutes);
 router.use('/otp', otpRoutes);  
 router.use('/lessons', lessonRoutes); 
 router.use('/notes', noteRoutes); 
+router.use('/progress', videoProgressRoutes);
+router.use('/media', mediaRoutes);
+
 
 
 

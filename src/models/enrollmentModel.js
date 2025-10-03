@@ -32,7 +32,23 @@ const enrollmentSchema = new mongoose.Schema({
   isCompleted: {
     type: Boolean,
     default: false
-  }
+  },
+    lessonProgress: [{
+    lessonId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Lesson',
+      required: true
+    },
+    currentTime: {
+      type: Number, // seconds
+      default: 0,
+      min: 0
+    },
+    lastWatchedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
 }, {
   timestamps: true
 });

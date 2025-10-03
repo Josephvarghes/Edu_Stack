@@ -7,7 +7,8 @@ import Enrollment from '~/models/enrollmentModel';
 import Wishlist from '~/models/wishlistModel';
 import Review from '~/models/reviewModel';
 import User from '~/models/userModel'; 
-import Quiz from '~/models/quizModel';
+import Quiz from '~/models/quizModel'; 
+import Media from '~/models/mediaModel';
 
 // ─── COURSE CRUD ───────────────────────────────────────────────
 
@@ -39,11 +40,40 @@ export const getCourseById = catchAsync(async (req, res) => {
 
   const quizzes = await Quiz.find({ courseId: course._id })
   .sort({ createdAt: 1 }) // optional: sort by created date
-  .lean();
+  .lean(); 
+
+
+  // 🔹 Get media (both course-level & lesson-level)
+  const media = await Media.find({
+    $or: [
+      { courseId: course._id }, // course-level media
+      { lessonId: { $in: lessons.map(l => l._id) } } // lesson-level media
+    ]
+  }).lean();
+
+  // Group media by lessonId (for easier frontend use)
+  const mediaByLesson = {};
+  lessons.forEach(lesson => {
+    mediaByLesson[lesson._id] = [];
+  });
+
+  media.forEach(m => {
+    if (m.lessonId) {
+      if (!mediaByLesson[m.lessonId]) mediaByLesson[m.lessonId] = [];
+      mediaByLesson[m.lessonId].push(m);
+    }
+  });
+
+  // Attach media to each lesson
+  const lessonsWithMedia = lessons.map(lesson => ({
+    ...lesson,
+    media: mediaByLesson[lesson._id] || []
+  }));
+
 
   res.json({
     success: true,
-    data: { ...course, lessons, reviews, quizzes },
+    data: { ...course, lessonsWithMedia, reviews, quizzes },
     message: 'Course retrieved successfully'
   });
 });

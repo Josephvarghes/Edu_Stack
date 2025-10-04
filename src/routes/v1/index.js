@@ -16,6 +16,7 @@ import noteRoutes from './noteRoutes';
 import videoProgressRoutes from './videoProgressRoutes'; 
 import mediaRoutes from './mediaRoutes';
 import dashboardRoutes from './dashboardRoutes.js';
+import notificationRoutes from './notificationRoutes.js';
 
 
 const router = Router();
@@ -36,7 +37,8 @@ router.use('/lessons', lessonRoutes);
 router.use('/notes', noteRoutes); 
 router.use('/progress', videoProgressRoutes);
 router.use('/media', mediaRoutes);
-router.use('/dashboard', dashboardRoutes);
+router.use('/dashboard', dashboardRoutes); 
+router.use('/notifications', notificationRoutes);
 
 
 export default router;

@@ -8,7 +8,13 @@ const router = express.Router();
 // Only tutors can access these routes
 router.use(authenticate('tutor:read')); // or check role in controller
 
+// Student tracking
+router.get('/student-tracking', tutorController.getStudentTrackingData);
+router.post('/send-bulk-message', tutorController.sendBulkMessage);
+router.get('/export-student-data', tutorController.exportStudentData);
+
 router.get('/dashboard', tutorController.getTutorDashboardData);
-router.get('/earnings', tutorController.getEarningsData);
+router.get('/earnings', tutorController.getEarningsData); 
+
 
 export default router;

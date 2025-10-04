@@ -2,11 +2,12 @@
 import httpStatus from 'http-status';
 import APIError from '~/utils/apiError.js';
 import catchAsync from '~/utils/catchAsync.js';
+import Earning from '~/models/earningModels';
+import TutorStats from '~/models/tutorStatsModel';
 import Course from '~/models/courseModel';
 import Enrollment from '~/models/enrollmentModel';
 import Review from '~/models/reviewModel';
-import Earning from '~/models/earningModels';
-import TutorStats from '~/models/tutorStatsModel';
+import User from '~/models/userModel';
 
 /**
  * Get tutor dashboard data
@@ -158,4 +159,132 @@ export const getEarningsData = catchAsync(async (req, res) => {
     },
     message: 'Earnings data retrieved successfully'
   });
+}); 
+
+
+
+/**
+ * Get student tracking data for tutor
+ */
+export const getStudentTrackingData = catchAsync(async (req, res) => {
+  const tutorId = req.user.id;
+
+  // Get tutor's courses
+  const courses = await Course.find({ tutor: tutorId }).lean();
+  const courseIds = courses.map(c => c._id);
+
+  // Get all enrollments for these courses
+  const enrollments = await Enrollment.find({ 
+    courseId: { $in: courseIds } 
+  })
+  .populate('userId', 'fullName')
+  .lean();
+
+  const totalStudents = enrollments.length;
+
+  // Calculate average progress
+  const totalLessons = enrollments.reduce((sum, e) => sum + (e.totalLessons || 0), 0);
+  const completedLessons = enrollments.reduce((sum, e) => sum + (e.completedLessons || 0), 0);
+  const avgProgress = totalLessons > 0 
+    ? Math.round((completedLessons / totalLessons) * 100) 
+    : 0;
+
+  // Active today (last 24 hours)
+  const activeToday = enrollments.filter(e => 
+    new Date(e.lastAccessedAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+  ).length;
+
+  // Completion rate
+  const completedCourses = enrollments.filter(e => e.isCompleted).length;
+  const completionRate = totalStudents > 0 
+    ? Math.round((completedCourses / totalStudents) * 100) 
+    : 0;
+
+  // Certificates earned this week
+  const certificatesThisWeek = 23; // Mock data (replace with real logic later)
+
+  // Enrolled students (top 4)
+  const enrolledStudents = enrollments.slice(0, 4).map(enrollment => {
+    const course = courses.find(c => c._id.toString() === enrollment.courseId.toString());
+    return {
+      studentName: enrollment.userId.fullName,
+      progressPercent: Math.round((enrollment.completedLessons / (enrollment.totalLessons || 1)) * 100),
+      currentCourse: course ? course.title : 'Unknown Course',
+      enrollmentId: enrollment._id
+    };
+  });
+
+  // Recent activity (mock)
+  const recentActivity = [
+    { student: 'Emma Johnson', action: 'Completed ‘Introduction to Limits’', time: '2h ago' },
+    { student: 'Michael Chen', action: 'Enrolled in ‘Organic Chemistry Basics’', time: '4h ago' },
+    { student: 'Sophie Davis', action: 'Submitted quiz with 95%', time: '6h ago' },
+    { student: 'James Wilson', action: 'Missed scheduled study', time: '2d ago' }
+  ];
+
+  // Performance analytics
+  const topPerformers = 23;
+  const needAttention = 8;
+  const avgStudyTime = 4.2; // hours/week
+  const quizSuccessRate = 84;
+  const certificateCompletion = 67;
+
+  res.json({
+    success: true,
+     data:{
+      overview: {
+        totalStudents,
+        avgProgress,
+        activeToday,
+        completionRate,
+        certificatesThisWeek
+      },
+      enrolledStudents,
+      recentActivity,
+      performanceAnalytics: {
+        topPerformers,
+        needAttention,
+        avgStudyTime,
+        quizSuccessRate,
+        certificateCompletion
+      },
+      quickActions: {
+        sendMessage: 'Send bulk message to students',
+        exportData: 'Export student reports'
+      }
+    },
+    message: 'Student tracking data retrieved successfully'
+  });
+});
+
+/**
+ * Send bulk message to students (mock)
+ */
+export const sendBulkMessage = catchAsync(async (req, res) => {
+  const { message, studentIds } = req.body;
+  const tutorId = req.user.id;
+
+  // Validate tutor has access to these students
+  // (In real app: check if students are enrolled in tutor's courses)
+
+  // Mock: return success
+  res.json({
+    success: true,
+    data:{ sent: true, recipients: studentIds.length },
+    message: 'Bulk message sent successfully'
+  });
+});
+
+/**
+ * Export student data (mock CSV)
+ */
+export const exportStudentData = catchAsync(async (req, res) => {
+  const tutorId = req.user.id;
+
+  // In real app: generate CSV and stream it
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename=student-report.csv');
+  
+  const csv = `Student,Progress,Course,Last Active\nEmma Johnson,92%,"Limits and Derivatives",2025-10-04\nMichael Chen,87%,"Organic Chemistry Basics",2025-10-04`;
+  res.send(csv);
 });

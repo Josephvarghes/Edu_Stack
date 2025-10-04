@@ -17,10 +17,14 @@ const enrollmentSchema = new mongoose.Schema({
     min: 0,
     max: 100
   },
-  completedLessons: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Lesson'
-  }],
+  // completedLessons: [{
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Lesson'
+  // }],
+  completedLessons: {
+    type: Number,
+    default: 0 
+  },
   enrolledAt: {
     type: Date,
     default: Date.now
@@ -32,6 +36,16 @@ const enrollmentSchema = new mongoose.Schema({
   isCompleted: {
     type: Boolean,
     default: false
+  },
+  totalLessons: { 
+    type: Number,
+     default: 0 
+    },
+  studyTimeHours: { type: Number,
+     default: 0 
+    },
+  isCompleted: { type: Boolean, 
+    default: false 
   },
     lessonProgress: [{
     lessonId: {

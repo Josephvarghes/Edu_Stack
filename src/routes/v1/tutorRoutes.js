@@ -1,27 +1,14 @@
-import { Router } from 'express';
+// src/routes/v1/tutorRoutes.js
+import express from 'express';
 import authenticate from '~/middlewares/authenticate.js';
 import * as tutorController from '~/controllers/tutorController.js';
-import catchAsync from '~/utils/catchAsync.js';
 
-const router = Router();
+const router = express.Router();
 
-// Only tutors/instructors allowed (role-based)
-router.get(
-  '/earnings',
-  authenticate('tutor:read'), // permission
-  catchAsync(tutorController.getTutorEarnings)
-);
+// Only tutors can access these routes
+router.use(authenticate('tutor:read')); // or check role in controller
 
-router.get(
-  '/uploads',
-  authenticate('tutor:read'),
-  catchAsync(tutorController.getTutorUploads)
-);
-
-router.get(
-  '/students',
-  authenticate('tutor:read'),
-  catchAsync(tutorController.getTutorStudents)
-);
+router.get('/dashboard', tutorController.getTutorDashboardData);
+router.get('/earnings', tutorController.getEarningsData);
 
 export default router;

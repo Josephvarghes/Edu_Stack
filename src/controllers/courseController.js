@@ -44,36 +44,37 @@ export const getCourseById = catchAsync(async (req, res) => {
 
 
   // 🔹 Get media (both course-level & lesson-level)
-  const media = await Media.find({
+  const media_data = await Media.find({
     $or: [
-      { courseId: course._id }, // course-level media
-      { lessonId: { $in: lessons.map(l => l._id) } } // lesson-level media
+      { courseId: course._id }, // course-level media_data
+      { lessonId: { $in: lessons.map(l => l._id) } } // lesson-level media_data
     ]
   }).lean();
 
-  // Group media by lessonId (for easier frontend use)
+  // Group media_data by lessonId (for easier frontend use)
   const mediaByLesson = {};
   lessons.forEach(lesson => {
     mediaByLesson[lesson._id] = [];
   });
 
-  media.forEach(m => {
+  media_data.forEach(m => {
     if (m.lessonId) {
       if (!mediaByLesson[m.lessonId]) mediaByLesson[m.lessonId] = [];
       mediaByLesson[m.lessonId].push(m);
     }
   });
 
-  // Attach media to each lesson
-  const lessonsWithMedia = lessons.map(lesson => ({
-    ...lesson,
-    media: mediaByLesson[lesson._id] || []
-  }));
+  // Attach media_data to each lesson
+  // const lessonsWithMedia = lessons.map(lesson => ({
+  //   // ...lesson,
+  //   media: mediaByLesson[lesson._id] || []
+  // })); 
+const media = lessons.flatMap(lesson => mediaByLesson[lesson._id] || []);
 
 
   res.json({
     success: true,
-    data: { ...course,lessons,lessonsWithMedia, reviews, quizzes },
+    data: { ...course,lessons, media, reviews, quizzes },
     message: 'Course retrieved successfully'
   });
 });

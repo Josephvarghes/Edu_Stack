@@ -73,7 +73,7 @@ export const getCourseById = catchAsync(async (req, res) => {
 
   res.json({
     success: true,
-    data: { ...course, lessonsWithMedia, reviews, quizzes },
+    data: { ...course,lessons,lessonsWithMedia, reviews, quizzes },
     message: 'Course retrieved successfully'
   });
 });

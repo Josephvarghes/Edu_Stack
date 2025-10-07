@@ -105,6 +105,7 @@ export const signin = async (req, res) => {
     } else if (phone) {
       user = await User.findOne({ phone }).populate('roles', 'name');
     }
+    
 
     if (!user) {
       return res.status(400).json({

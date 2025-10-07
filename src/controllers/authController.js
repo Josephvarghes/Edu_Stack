@@ -105,7 +105,7 @@ export const signin = async (req, res) => {
     } else if (phone) {
       user = await User.findOne({ phone }).populate('roles', 'name');
     }
-    
+
 
     if (!user) {
       return res.status(400).json({
@@ -126,7 +126,11 @@ export const signin = async (req, res) => {
     }
 
     // generate tokens
-    const tokens = await tokenService.generateAuthTokens(user);
+    const tokens = await tokenService.generateAuthTokens(user); 
+
+    user = user.toObject();
+    user.roles = user.roles?.[0]?.name || 'User';
+
 
     return res.json({
       success: true,

@@ -101,9 +101,9 @@ export const signin = async (req, res) => {
     // find user by email or phone
     let user;
     if (email) {
-      user = await User.findOne({ email });
+      user = await User.findOne({ email }).populate('roles', 'name');
     } else if (phone) {
-      user = await User.findOne({ phone });
+      user = await User.findOne({ phone }).populate('roles', 'name');
     }
 
     if (!user) {

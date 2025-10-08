@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - back_tier
+  dserver:
+    build: .
+
+    networks:
+      - back_tier
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    links:
+      - mongodb
+
+
+    
+volumes:
+  mongodb_data:
+networks:
+  back_tier:

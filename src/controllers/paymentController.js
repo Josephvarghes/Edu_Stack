@@ -121,15 +121,15 @@ export const createOrder = catchAsync(async (req, res) => {
     billingInfo
   }); 
   // Create Razorpay order
-  // const razorpayOrder = await razorpay.orders.create({
-  //   amount: Math.round(finalAmount * 100), // Razorpay expects paise
-  //   currency: plan.currency,
-  //   receipt: order._id.toString(),
-  //   notes: {
-  //     userId: userId.toString(),
-  //     planId: planId.toString()
-  //   }
-  // });
+  const razorpayOrder = await razorpay.orders.create({
+    amount: Math.round(finalAmount * 100), // Razorpay expects paise
+    currency: plan.currency,
+    receipt: order._id.toString(),
+    notes: {
+      userId: userId.toString(),
+      planId: planId.toString()
+    }
+  });
 
   // // Update order with Razorpay order ID
   // order.transactionId = razorpayOrder.id;
